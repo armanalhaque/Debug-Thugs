@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Management</title>
+    <link rel="stylesheet" href="student.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Student Management</h1>
+    </header>
+
+    <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="student.html">Students</a>
+        <a href="faculty.html">Faculty</a>
+        <a href="courses.html">Courses</a>
+        <a href="reports.html">Reports</a>
+        <a href="login.html" class="login-btn">Student Login</a>
+    </nav>
+
+    <div class="container">
+        <!-- Home Button -->
+        <button class="home-btn" onclick="window.location.href='/collegerp.html';">Home</button>
+        <div class="container">
+            <h2>Student List</h2>
+            <button class="btn btn-add" onclick="toggleForm()">+ Add New Student</button>
+
+            <!-- Student Form -->
+            <div class="form-container" id="studentForm">
+                <input type="text" id="stuId" placeholder="ID" required />
+                <input type="text" id="stuName" placeholder="Name" required />
+                <input type="text" id="stuDept" placeholder="Department" required />
+                <input type="email" id="stuEmail" placeholder="Email" required />
+                <button class="btn btn-add" onclick="submitStudent()">Save</button>
+                <button class="btn" onclick="cancelEdit()">Cancel</button>
+            </div>
+
+            <!-- Student Table -->
+            <table id="studentTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Example row -->
+                    <tr>
+                        <td>101</td>
+                        <td>Rahul Sharma</td>
+                        <td>Computer Science</td>
+                        <td>rahul@example.com</td>
+                        <td>
+                            <button class="btn btn-edit" onclick="editStudent(this)">Edit</button>
+                            <button class="btn btn-delete" onclick="deleteStudent(this)">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <script>
+            let editingRow = null;
+            let editingId = null;
+
+            function toggleForm(show = true) {
+                document.getElementById("studentForm").style.display = show ? "block" : "none";
+            }
+
+            function submitStudent() {
+                const id = document.getElementById("stuId").value.trim();
+                const name = document.getElementById("stuName").value.trim();
+                const dept = document.getElementById("stuDept").value.trim();
+                const email = document.getElementById("stuEmail").value.trim();
+
+                if (!id || !name || !dept || !email) {
+                    alert("Please fill in all fields");
+                    return;
+                }
+
+                const payload = {
+                    id: id,
+                    name: name,
+                    dept: dept,
+                    email: email
+                };
+
+                const url = editingRow ? "http://127.0.0.1:5000/update-student" : "http://127.0.0.1:5000/add-student";
+                const method = editingRow ? "PUT" : "POST";
+
+                fetch(url, {
+                    method: method,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message.includes("successfully")) {
+                            if (editingRow) {
+                                editingRow.cells[0].textContent = id;
+                                editingRow.cells[1].textContent = name;
+                                editingRow.cells[2].textContent = dept;
+                                editingRow.cells[3].textContent = email;
+                            } else {
+                                const table = document.getElementById("studentTable").querySelector("tbody");
+                                const row = table.insertRow();
+                                row.innerHTML = `
+                                <td>${id}</td>
+                                <td>${name}</td>
+                                <td>${dept}</td>
+                                <td>${email}</td>
+                                <td>
+                                    <button class="btn btn-edit" onclick="editStudent(this)">Edit</button>
+                                    <button class="btn btn-delete" onclick="deleteStudent(this)">Delete</button>
+                                </td>
+                            `;
+                            }
+
+                            clearForm();
+                            toggleForm(false);
+                            editingRow = null;
+                        } else {
+                            alert("Error: " + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error saving student:", error);
+                        alert("Failed to save student");
+                    });
+            }
+
+            function editStudent(button) {
+                const row = button.parentElement.parentElement;
+                editingRow = row;
+
+                document.getElementById("stuId").value = row.cells[0].textContent;
+                document.getElementById("stuName").value = row.cells[1].textContent;
+                document.getElementById("stuDept").value = row.cells[2].textContent;
+                document.getElementById("stuEmail").value = row.cells[3].textContent;
+
+                toggleForm(true);
+            }
+
+            function deleteStudent(button) {
+                const row = button.parentElement.parentElement;
+                const id = row.cells[0].textContent;
+
+                if (confirm("Are you sure you want to delete this student?")) {
+                    fetch("http://127.0.0.1:5000/delete-student", {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ id: id })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.message.includes("successfully")) {
+                                row.remove();
+                            } else {
+                                alert("Error: " + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error deleting student:", error);
+                            alert("Failed to delete student");
+                        });
+                }
+            }
+
+            function cancelEdit() {
+                clearForm();
+                editingRow = null;
+                toggleForm(false);
+            }
+
+            function clearForm() {
+                document.getElementById("stuId").value = '';
+                document.getElementById("stuName").value = '';
+                document.getElementById("stuDept").value = '';
+                document.getElementById("stuEmail").value = '';
+            }
+        </script>
+
+
+</body>
+
+</html>
