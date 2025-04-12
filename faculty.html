@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Faculty Management</title>
+    <link rel="stylesheet" href="faculty.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Faculty Management</h1>
+    </header>
+
+    <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="student.html">Students</a>
+        <a href="faculty.html">Faculty</a>
+        <a href="courses.html">Courses</a>
+        <a href="reports.html">Reports</a>
+        <a href="login.html" class="login-btn">Student Login</a>
+    </nav>
+
+    <div class="container">
+        <!-- Home Button -->
+        <button class="home-btn" onclick="window.location.href='/collegerp.html';">Home</button>
+        <div class="container">
+            <h2>Faculty List</h2>
+            <button class="btn btn-add" onclick="toggleForm()">+ Add New Faculty</button>
+
+            <!-- Faculty Form -->
+            <div class="form-container" id="facultyForm">
+                <input type="text" id="facId" placeholder="ID" required />
+                <input type="text" id="facName" placeholder="Name" required />
+                <input type="text" id="facDept" placeholder="Department" required />
+                <input type="tel" id="factel" placeholder="Phone number" required />
+                <input type="email" id="facEmail" placeholder="Email" required />
+                <button class="btn btn-add" onclick="submitFaculty()">Save</button>
+                <button class="btn" onclick="cancelEdit()">Cancel</button>
+            </div>
+
+            <!-- Faculty Table -->
+            <table id="facultyTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Phone Number</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Example row -->
+                    <tr>
+                        <td>F201</td>
+                        <td>Dr. Meena Rathi</td>
+                        <td>Mathematics</td>
+                        <td>1234567890</td>
+                        <td>meena.rathi@example.com</td>
+                        <td>
+                            <button class="btn btn-edit" onclick="editFaculty(this)">Edit</button>
+                            <button class="btn btn-delete" onclick="deleteFaculty(this)">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <script>
+            let editingRow = null;
+
+            function toggleForm(show = true) {
+                document.getElementById("facultyForm").style.display = show ? "block" : "none";
+            }
+
+            function submitFaculty() {
+                const id = document.getElementById("facId").value;
+                const name = document.getElementById("facName").value;
+                const dept = document.getElementById("facDept").value;
+                const phone = document.getElementById("factel").value;
+                const email = document.getElementById("facEmail").value;
+
+                if (!id || !name || !dept || !email) {
+                    alert("Please fill in all fields");
+                    return;
+                }
+
+                const facultyData = { id, name, dept, phone, email };
+
+                if (editingRow) {
+                    // Update existing faculty on backend
+                    fetch("http://127.0.0.1:5000/update-faculty", {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(facultyData),
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.message.includes("success")) {
+                                editingRow.cells[0].textContent = id;
+                                editingRow.cells[1].textContent = name;
+                                editingRow.cells[2].textContent = dept;
+                                editingRow.cells[3].textContent = phone;
+                                editingRow.cells[4].textContent = email;
+                                editingRow = null;
+                                clearForm();
+                                toggleForm(false);
+                            } else {
+                                alert("Update failed: " + data.message);
+                            }
+                        });
+                } else {
+                    // Add new faculty to backend
+                    fetch("http://127.0.0.1:5000/add-faculty", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(facultyData),
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.message.includes("success")) {
+                                const table = document.getElementById("facultyTable").querySelector("tbody");
+                                const row = table.insertRow();
+                                row.innerHTML = `
+                                <td>${id}</td>
+                                <td>${name}</td>
+                                <td>${dept}</td>
+                                <td>${phone}</td>
+                                <td>${email}</td>
+                                <td>
+                                    <button class="btn btn-edit" onclick="editFaculty(this)">Edit</button>
+                                    <button class="btn btn-delete" onclick="deleteFaculty(this)">Delete</button>
+                                </td>
+                            `;
+                                clearForm();
+                                toggleForm(false);
+                            } else {
+                                alert("Failed to add faculty: " + data.message);
+                            }
+                        });
+                }
+            }
+
+            function editFaculty(button) {
+                const row = button.parentElement.parentElement;
+                editingRow = row;
+
+                document.getElementById("facId").value = row.cells[0].textContent;
+                document.getElementById("facName").value = row.cells[1].textContent;
+                document.getElementById("facDept").value = row.cells[2].textContent;
+                document.getElementById("factel").value = row.cells[3].textContent;
+                document.getElementById("facEmail").value = row.cells[4].textContent;
+
+                toggleForm(true);
+            }
+
+            function deleteFaculty(button) {
+                const row = button.parentElement.parentElement;
+                const id = row.cells[0].textContent;
+
+                if (confirm("Are you sure you want to delete this faculty member?")) {
+                    fetch("http://127.0.0.1:5000/delete-faculty", {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ id }),
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.message.includes("success")) {
+                                row.remove();
+                            } else {
+                                alert("Failed to delete faculty: " + data.message);
+                            }
+                        });
+                }
+            }
+
+            function cancelEdit() {
+                clearForm();
+                editingRow = null;
+                toggleForm(false);
+            }
+
+            function clearForm() {
+                document.getElementById("facId").value = '';
+                document.getElementById("facName").value = '';
+                document.getElementById("facDept").value = '';
+                document.getElementById("factel").value = '';
+                document.getElementById("facEmail").value = '';
+            }
+        </script>
+
+
+</body>
+
+</html>
