@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - ERP System</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Welcome to the ERP System Dashboard</h1>
+    </header>
+
+    <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="student.html">Students</a>
+        <a href="faculty.html">Faculty</a>
+        <a href="courses.html">Courses</a>
+        <a href="reports.html">Reports</a>
+        <a href="login.html" class="login-btn">Student Login</a>
+    </nav>
+
+    <div class="container">
+        <!-- Home Button -->
+        <button class="home-btn" onclick="window.location.href='/collegerp.html';">Home</button>
+
+        <div class="stats">
+            <!-- Student Stat Card -->
+            <div class="stat-card">
+                <h3>250</h3>
+                <p>Students</p>
+            </div>
+
+            <!-- Faculty Stat Card -->
+            <div class="stat-card">
+                <h3>45</h3>
+                <p>Faculty Members</p>
+            </div>
+
+            <!-- Courses Stat Card -->
+            <div class="stat-card">
+                <h3>30</h3>
+                <p>Courses Offered</p>
+            </div>
+
+            <!-- Pending Tasks Stat Card -->
+            <div class="stat-card">
+                <h3>5</h3>
+                <p>Pending Tasks</p>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="students.html">
+                <button class="btn">Manage Students</button>
+            </a>
+            <a href="faculty.html">
+                <button class="btn">Manage Faculty</button>
+            </a>
+            <a href="courses.html">
+                <button class="btn">Manage Courses</button>
+            </a>
+            <a href="reports.html">
+                <button class="btn btn-action">View Reports</button>
+            </a>
+        </div>
+    </div>
+
+</body>
+
+</html>
