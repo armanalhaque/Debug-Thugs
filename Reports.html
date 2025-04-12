@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reports - ERP System</title>
+    <link rel="stylesheet" href="reports.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>ERP System - Reports</h1>
+    </header>
+
+    <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="student.html">Students</a>
+        <a href="faculty.html">Faculty</a>
+        <a href="courses.html">Courses</a>
+        <a href="reports.html">Reports</a>
+        <a href="login.html" class="login-btn">Student Login</a>
+    </nav>
+
+    <div class="container">
+        <!-- Home Button -->
+        <button class="home-btn" onclick="window.location.href='/collegerp.html';">Home</button>
+        <div class="container">
+            <h2 class="report-header">Generate Reports</h2>
+
+            <!-- Report Generation Buttons -->
+            <button class="btn btn-generate" onclick="generateReport('student')">Generate Student Report</button>
+            <button class="btn btn-generate" onclick="generateReport('faculty')">Generate Faculty Report</button>
+            <button class="btn btn-generate" onclick="generateReport('course')">Generate Course Report</button>
+
+            <!-- Reports Table Section -->
+            <h3 class="report-header">Generated Reports</h3>
+
+            <table id="reportTable">
+                <thead>
+                    <tr>
+                        <th>Report Type</th>
+                        <th>Generated On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Example row -->
+                    <tr>
+                        <td>Student Report</td>
+                        <td>2025-04-11</td>
+                        <td>
+                            <button class="btn btn-view" onclick="viewReport(this)">View</button>
+                            <button class="btn btn-download" onclick="downloadReport(this)">Download</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Faculty Report</td>
+                        <td>2025-04-10</td>
+                        <td>
+                            <button class="btn btn-view" onclick="viewReport(this)">View</button>
+                            <button class="btn btn-download" onclick="downloadReport(this)">Download</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <script>
+            function generateReport(type) {
+                // Send a request to the backend to generate a report
+                fetch("http://127.0.0.1:5000/generate-report", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ type: type }),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const table = document.getElementById("reportTable").querySelector("tbody");
+                            const row = table.insertRow();
+                            const currentDate = new Date().toLocaleDateString();
+
+                            row.innerHTML = `
+                            <td>${capitalizeFirstLetter(type)} Report</td>
+                            <td>${currentDate}</td>
+                            <td>
+                                <button class="btn btn-view" onclick="viewReport(this)">View</button>
+                                <button class="btn btn-download" onclick="downloadReport(this)">Download</button>
+                            </td>
+                        `;
+                        } else {
+                            alert("Failed to generate report: " + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error generating report:", error);
+                        alert("An error occurred while generating the report.");
+                    });
+            }
+
+            function viewReport(button) {
+                const reportType = button.parentElement.parentElement.cells[0].textContent;
+                alert(`Viewing ${reportType}`);
+            }
+
+            function downloadReport(button) {
+                const reportType = button.parentElement.parentElement.cells[0].textContent;
+                alert(`Downloading ${reportType}`);
+            }
+
+            function capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+        </script>
+
+
+</body>
+
+</html>
