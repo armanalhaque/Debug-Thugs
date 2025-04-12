@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student ERP Login</title>
+    <link rel="stylesheet" href="login.css">
+    <style>
+        .home-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-bottom: 15px;
+            background-color: #b32313;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .home-btn:hover {
+            background-color: #c0392b;
+        }
+                           
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+        <h2>Student ERP Login</h2>
+
+        <!-- Home Button -->
+        <a href="collegerp.html" class="home-btn">Home</a>
+
+        <form action="dashboard.html" method="post">
+            <input type="text" class="input-field" name="student_id" placeholder="Student ID" required>
+            <input type="password" class="input-field" name="password" placeholder="Password" required>
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+
+        <div class="forgot-password">
+            <p><a href="#">Forgot Password?</a></p>
+        </div>
+    </div>
+
+</body>
+
+</html>
